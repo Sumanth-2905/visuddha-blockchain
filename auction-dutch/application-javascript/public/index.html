@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Auction dApp</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 800px; width: 100%; }
+        .card { background-color: #fff; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #5a2d82; }
+        input { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #7e57c2; color: #fff; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #5a2d82; }
+        #result { background-color: #eee; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hyperledger Fabric Auction dApp</h1>
+
+        <div class="card">
+            <h2>Create Auction</h2>
+            <input type="text" id="createAuctionId" placeholder="Auction ID (e.g., auction4)">
+            <input type="text" id="createItem" placeholder="Item (e.g., Antique Clock)">
+            <input type="number" id="createPrice" placeholder="Price">
+            <button onclick="createAuction()">Create Auction</button>
+        </div>
+
+        <div class="card">
+            <h2>Query Auction</h2>
+            <input type="text" id="queryAuctionId" placeholder="Enter Auction ID to query">
+            <button onclick="queryAuction()">Query Auction</button>
+        </div>
+        
+        <div class="card">
+            <h2>Result</h2>
+            <pre id="result">The result of your query will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        // Function to call the createAuction API endpoint
+        async function createAuction() {
+            const auctionId = document.getElementById('createAuctionId').value;
+            const item = document.getElementById('createItem').value;
+            const price = document.getElementById('createPrice').value;
+            const resultDiv = document.getElementById('result');
+
+            try {
+                const response = await fetch('/api/createAuction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ auctionId, item, price: parseInt(price) })
+                });
+                const result = await response.json();
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Function to call the query API endpoint
+        async function queryAuction() {
+            const auctionId = document.getElementById('queryAuctionId').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!auctionId) {
+                resultDiv.textContent = 'Please enter an Auction ID.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/query/${auctionId}`);
+                const result = await response.json();
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
